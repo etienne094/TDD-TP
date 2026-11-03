@@ -17,6 +17,10 @@ public class TarifPass {
             return Montant.ZERO;
         }
 
+        if(type == TypeVehicule.TROTTINETTE){
+            return Montant.euros(4.00);
+        }
+
         if (minutes == 0) {
             return Montant.euros(1.00);
         }
