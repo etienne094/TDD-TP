@@ -26,7 +26,7 @@ public class TarifPass {
             return Montant.euros(1.00);
         }
 
-        return Montant.euros(1.00).plus(tarifMinute.fois(minutes));
+        return Montant.euros(1.00).plus(tarifMinute.fois(minutes)).plafonneA(Montant.euros(15.00));
     }
 
 }
