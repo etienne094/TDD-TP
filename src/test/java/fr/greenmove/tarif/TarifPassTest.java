@@ -203,4 +203,28 @@ public class TarifPassTest {
         assertEquals(Montant.euros(2.72), prix);
     }
 
+    @Test
+    void un_trajet_velo_ABONNE_et_sansPass_de_90_minutes_coute_12_euros(){
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return true;
+            }
+
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return false;
+            }
+        };
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        TarifPass tarifPass = new TarifPass(abonnements, mock(CompteurTrajets.class), horloge);
+
+        Montant prix = tarifPass.prix("usager8", TypeVehicule.VELO, 90);
+
+        //Then
+        assertEquals(Montant.euros(12), prix);
+    }
+
 }
