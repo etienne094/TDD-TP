@@ -185,7 +185,7 @@ public class TarifPassTest {
         Abonnements abonnements = new Abonnements() {
             @Override
             public boolean estAbonne(String usager) {
-                return false;
+                return true;
             }
 
             @Override
