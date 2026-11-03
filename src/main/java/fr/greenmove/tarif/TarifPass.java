@@ -6,6 +6,12 @@ public class TarifPass {
     private final CompteurTrajets compteur;
     private final Horloge horloge;
 
+    private static final Montant DEVEROUILLAGE = Montant.euros(1.00);
+    private static final Montant MINUTE_VELO = Montant.euros(0.20);
+    private static final Montant MINUTE_TROTTINETTE = Montant.euros(0.25);
+    private static final Montant PLAFOND = Montant.euros(15.00);
+
+
     public TarifPass(Abonnements abonnements, CompteurTrajets compteur, Horloge horloge) {
         this.abonnements = abonnements;
         this.compteur = compteur;
@@ -13,20 +19,17 @@ public class TarifPass {
     }
 
     public Montant prix(String usager, TypeVehicule type, int minutes) {
-        Montant tarifMinute = type == TypeVehicule.VELO ? Montant.euros(0.20) : Montant.euros(0.25);
-        if (abonnements.estAbonne(usager) || abonnements.aUnPassActif(usager, horloge.aujourdhui())) {
-            return Montant.ZERO;
-        }
 
-        if(type == TypeVehicule.TROTTINETTE){
-            return Montant.euros(4.00);
-        }
+        return DEVEROUILLAGE.plus(tarifMinute(type).fois(minutes)).plafonneA(PLAFOND);
+    }
 
-        if (minutes == 0) {
-            return Montant.euros(1.00);
+    private Montant tarifMinute(TypeVehicule type){
+        if(type == TypeVehicule.VELO){
+            return MINUTE_VELO;
         }
-
-        return Montant.euros(1.00).plus(tarifMinute.fois(minutes)).plafonneA(Montant.euros(15.00));
+        else {
+            return MINUTE_TROTTINETTE;
+        }
     }
 
 }

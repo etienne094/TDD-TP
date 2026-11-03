@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 
 public class TarifPassTest {
 
+
     @Test
     void un_trajet_velo_nonAbonne_et_sansPass_de_12_minutes_coute_3_euros_40() {
 
