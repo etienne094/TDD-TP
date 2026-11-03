@@ -1,6 +1,7 @@
 package fr.greenmove.tarif;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 
@@ -24,10 +25,9 @@ public class TarifPassTest {
             }
         };
 
-        CompteurTrajets compteur = new CompteurTrajetsMemoire();
         Horloge horloge = () -> LocalDate.of(2027, 9, 1);
 
-        TarifPass tarifPass = new TarifPass(abonnements, compteur, horloge);
+        TarifPass tarifPass = new TarifPass(abonnements, mock(CompteurTrajets.class), horloge);
 
         // WHEN
         Montant prix = tarifPass.prix("usager1", TypeVehicule.VELO, 12);
