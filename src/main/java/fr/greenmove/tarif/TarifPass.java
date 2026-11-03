@@ -20,6 +20,10 @@ public class TarifPass {
 
     public Montant prix(String usager, TypeVehicule type, int minutes) {
 
+        if(minutes < 0){
+            throw new IllegalArgumentException("durée négative");
+        }
+
         return DEVEROUILLAGE.plus(tarifMinute(type).fois(minutes)).plafonneA(PLAFOND);
     }
 
