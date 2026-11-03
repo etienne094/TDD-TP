@@ -31,4 +31,28 @@ class TarifPassTest {
 
         assertEquals(Montant.euros(4.00), prix);
     }
+
+    @Test
+    void un_vélo_de_70_min_sans_pass_ni_abonnement_coûte_15_euros()
+    {
+        Abonnements sansRien = new Abonnements()
+        {
+            public boolean estAbonne(String usager)
+            {
+                return false;
+            }
+            public boolean aUnPassActif(String usager, LocalDate jour)
+            {
+                return false;
+            }
+        };
+
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+        TarifPass tarif = new TarifPass(sansRien, mock(CompteurTrajets.class), horloge);
+
+        Montant prix = tarif.prix("Etienne", TypeVehicule.VELO, 70);
+
+        assertEquals(Montant.euros(15.00), prix);
+    }
+
 }
