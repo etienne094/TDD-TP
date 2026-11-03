@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 public class TarifPassTest {
@@ -147,6 +148,34 @@ public class TarifPassTest {
 
         // THEN
         assertEquals(Montant.euros(15), prix);
+
+    }
+
+    @Test
+    void une_duree_negative_est_refusee() {
+
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return false;
+            }
+
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return false;
+            }
+        };
+
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        TarifPass tarifPass = new TarifPass(abonnements, mock(CompteurTrajets.class), horloge);
+
+        // WHEN / THEN
+        IllegalArgumentException erreur = assertThrows(IllegalArgumentException.class,
+                () -> tarifPass.prix("usager6", TypeVehicule.VELO, -1));
+
+        assertEquals("durée négative", erreur.getMessage());
 
     }
 
