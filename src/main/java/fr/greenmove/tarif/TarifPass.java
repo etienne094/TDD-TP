@@ -13,6 +13,14 @@ public class TarifPass {
     }
 
     public Montant prix(String usager, TypeVehicule type, int minutes) {
+        if (abonnements.estAbonne(usager) || abonnements.aUnPassActif(usager, horloge.aujourdhui())) {
+            return Montant.ZERO;
+        }
+
+        if (minutes == 0) {
+            return Montant.euros(1.00);
+        }
+
         return Montant.euros(3.40);
     }
 
