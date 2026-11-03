@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class TarifPassTest {
 
@@ -226,5 +226,36 @@ public class TarifPassTest {
         //Then
         assertEquals(Montant.euros(12), prix);
     }
+
+    @Test
+    void un_trajet_velo_non_abonne_et_avecPass_de_12_minutes_coute_0_euro(){
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return false;
+            }
+
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return true;
+            }
+        };
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        CompteurTrajets compteurTrajets = mock(CompteurTrajets.class);
+        when(compteurTrajets.trajetsInclus("usager9", LocalDate.of(2027, 9, 1))).thenReturn(0);
+
+        TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
+
+        //When
+        Montant prix = tarifPass.prix("usager9", TypeVehicule.VELO, 12);
+
+        //Then
+        assertEquals(Montant.euros(0), prix);
+        verify(compteurTrajets).enregistrerTrajetInclus("usager9", LocalDate.of(2027, 9, 1));
+    }
+
+
 
 }
