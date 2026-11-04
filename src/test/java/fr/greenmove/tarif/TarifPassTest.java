@@ -1,15 +1,13 @@
 package fr.greenmove.tarif;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 
 public class TarifPassTest {
-
 
     @Test
     void un_trajet_velo_nonAbonne_et_sansPass_de_12_minutes_coute_3_euros_40() {
@@ -180,7 +178,7 @@ public class TarifPassTest {
     }
 
     @Test
-    void un_trajet_velo_ABONNE_et_sansPass_de_12_minutes_coute_2_euros_72(){
+    void un_trajet_velo_ABONNE_et_sansPass_de_12_minutes_coute_2_euros_72() {
         // Given
         Abonnements abonnements = new Abonnements() {
             @Override
@@ -199,12 +197,12 @@ public class TarifPassTest {
 
         Montant prix = tarifPass.prix("usager7", TypeVehicule.VELO, 12);
 
-        //Then
+        // Then
         assertEquals(Montant.euros(2.72), prix);
     }
 
     @Test
-    void un_trajet_velo_ABONNE_et_sansPass_de_90_minutes_coute_12_euros(){
+    void un_trajet_velo_ABONNE_et_sansPass_de_90_minutes_coute_12_euros() {
         // Given
         Abonnements abonnements = new Abonnements() {
             @Override
@@ -223,12 +221,12 @@ public class TarifPassTest {
 
         Montant prix = tarifPass.prix("usager8", TypeVehicule.VELO, 90);
 
-        //Then
+        // Then
         assertEquals(Montant.euros(12), prix);
     }
 
     @Test
-    void un_trajet_velo_non_abonne_et_avecPass_de_12_minutes_coute_0_euro(){
+    void un_trajet_velo_non_abonne_et_avecPass_de_12_minutes_coute_0_euro() {
         // Given
         Abonnements abonnements = new Abonnements() {
             @Override
@@ -248,14 +246,41 @@ public class TarifPassTest {
 
         TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
 
-        //When
+        // When
         Montant prix = tarifPass.prix("usager9", TypeVehicule.VELO, 12);
 
-        //Then
+        // Then
         assertEquals(Montant.euros(0), prix);
         verify(compteurTrajets).enregistrerTrajetInclus("usager9", LocalDate.of(2027, 9, 1));
     }
 
+    @Test
+    void un_trajet_velo_non_abonne_et_avecPass_de_21_minutes_coute_0_euro_et_20() {
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return false;
+            }
 
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return true;
+            }
+        };
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        CompteurTrajets compteurTrajets = mock(CompteurTrajets.class);
+        when(compteurTrajets.trajetsInclus("usager10", LocalDate.of(2027, 9, 1))).thenReturn(0);
+
+        TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
+
+        // When
+        Montant prix = tarifPass.prix("usager10", TypeVehicule.VELO, 12);
+
+        // Then
+        assertEquals(Montant.euros(0.20), prix);
+        verify(compteurTrajets).enregistrerTrajetInclus("usager10", LocalDate.of(2027, 9, 1));
+    }
 
 }
