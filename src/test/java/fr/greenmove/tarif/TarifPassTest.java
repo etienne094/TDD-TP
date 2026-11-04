@@ -276,7 +276,7 @@ public class TarifPassTest {
         TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
 
         // When
-        Montant prix = tarifPass.prix("usager10", TypeVehicule.VELO, 12);
+        Montant prix = tarifPass.prix("usager10", TypeVehicule.VELO, 21);
 
         // Then
         assertEquals(Montant.euros(0.20), prix);
