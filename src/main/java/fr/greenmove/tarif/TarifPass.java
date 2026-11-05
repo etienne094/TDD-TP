@@ -30,7 +30,7 @@ public class TarifPass {
         LocalDate jour = horloge.aujourdhui();
 
         // Bloc pass
-        if (abonnements.aUnPassActif(usager, jour)) {
+        if (abonnements.aUnPassActif(usager, jour) && compteur.trajetsInclus(usager, jour) < MAX_TRAJETS_INCLUS_PAR_JOUR){
 
             compteur.enregistrerTrajetInclus(usager, jour);
             if (minutes <= MINUTES_INCLUSES_PASS) {
