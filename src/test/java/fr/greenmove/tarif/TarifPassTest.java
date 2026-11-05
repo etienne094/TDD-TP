@@ -308,7 +308,7 @@ public class TarifPassTest {
         Montant prix = tarifPass.prix("usager11", TypeVehicule.VELO, 30);
 
         // Then
-        assertEquals(Montant.euros(0.20), prix);
+        assertEquals(Montant.euros(2), prix);
         verify(compteurTrajets).enregistrerTrajetInclus("usager11", LocalDate.of(2027, 9, 1));
     }
 

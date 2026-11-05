@@ -36,7 +36,7 @@ public class TarifPass {
             if (minutes <= MINUTES_INCLUSES_PASS) {
                 return Montant.ZERO;
             }
-            return tarifMinute(type);
+            return tarifMinute(type).fois(minutes - MINUTES_INCLUSES_PASS);
         }
 
         Montant prix = DEVERROUILLAGE.plus(tarifMinute(type).fois(minutes)).plafonneA(PLAFOND);
