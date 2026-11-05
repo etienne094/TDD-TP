@@ -33,15 +33,20 @@ public class TarifPass {
         if (abonnements.aUnPassActif(usager, jour) && compteur.trajetsInclus(usager, jour) < MAX_TRAJETS_INCLUS_PAR_JOUR){
 
             compteur.enregistrerTrajetInclus(usager, jour);
-            if (minutes <= MINUTES_INCLUSES_PASS) {
-                return Montant.ZERO;
+            Montant prixPass = Montant.ZERO;
+            if (minutes > MINUTES_INCLUSES_PASS) {
+                prixPass = tarifMinute(type).fois(minutes - MINUTES_INCLUSES_PASS);
             }
-            return tarifMinute(type).fois(minutes - MINUTES_INCLUSES_PASS);
+
+            // Bloc abonné
+            if (abonnements.estAbonne(usager)) {
+                prixPass = prixPass.moinsPourcent(20);
+            }
+            return prixPass;
         }
 
         Montant prix = DEVERROUILLAGE.plus(tarifMinute(type).fois(minutes)).plafonneA(PLAFOND);
 
-        // Bloc abonné
         if (abonnements.estAbonne(usager)) {
             prix = prix.moinsPourcent(20);
         }
