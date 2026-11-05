@@ -1,11 +1,12 @@
 package fr.greenmove.tarif;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 public class TarifPassTest {
 
@@ -398,6 +399,35 @@ public class TarifPassTest {
         // Then
         assertEquals(Montant.euros(1.60), prix);
         verify(compteurTrajets).enregistrerTrajetInclus("usager14", LocalDate.of(2027, 9, 1));
+    }
+
+    @Test
+    void un_1er_trajet_velo_non_abonne_et_avecPass_de_120_minutes_plafonne_a_15_euros() {
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return false;
+            }
+
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return true;
+            }
+        };
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        CompteurTrajets compteurTrajets = mock(CompteurTrajets.class);
+        when(compteurTrajets.trajetsInclus("usager15", LocalDate.of(2027, 9, 1))).thenReturn(0);
+
+        TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
+
+        // When
+        Montant prix = tarifPass.prix("usager15", TypeVehicule.VELO, 120);
+
+        // Then
+        assertEquals(Montant.euros(15.00), prix);
+        verify(compteurTrajets).enregistrerTrajetInclus("usager15", LocalDate.of(2027, 9, 1));
     }
 
 }
