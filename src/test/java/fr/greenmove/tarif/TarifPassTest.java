@@ -300,7 +300,7 @@ public class TarifPassTest {
         Horloge horloge = () -> LocalDate.of(2027, 9, 1);
 
         CompteurTrajets compteurTrajets = mock(CompteurTrajets.class);
-        when(compteurTrajets.trajetsInclus("usager11", LocalDate.of(2027, 9, 1))).thenReturn(0);
+        when(compteurTrajets.trajetsInclus("usager11", LocalDate.of(2027, 9, 1))).thenReturn(1);
 
         TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
 
@@ -368,6 +368,36 @@ public class TarifPassTest {
         // Then
         assertEquals(Montant.euros(3.40), prix);
         verify(compteurTrajets, never()).enregistrerTrajetInclus(any(), any());
-        }
+
+    }
+
+    @Test
+    void un_abonne_et_avecPass_paie_son_1er_trajet_en_velo_de_30_minutes_coute_1_euro_et_60_centimes() {
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return true;
+            }
+
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return true;
+            }
+        };
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        CompteurTrajets compteurTrajets = mock(CompteurTrajets.class);
+        when(compteurTrajets.trajetsInclus("usager14", LocalDate.of(2027, 9, 1))).thenReturn(0);
+
+        TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
+
+        // When
+        Montant prix = tarifPass.prix("usager14", TypeVehicule.VELO, 30);
+
+        // Then
+        assertEquals(Montant.euros(1.60), prix);
+        verify(compteurTrajets).enregistrerTrajetInclus("usager14", LocalDate.of(2027, 9, 1));
+    }
 
 }
