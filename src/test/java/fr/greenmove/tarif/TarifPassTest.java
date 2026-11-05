@@ -283,4 +283,62 @@ public class TarifPassTest {
         verify(compteurTrajets).enregistrerTrajetInclus("usager10", LocalDate.of(2027, 9, 1));
     }
 
+    @Test
+    void un_2e_trajet_velo_non_abonne_et_avecPass_de_30_minutes_coute_2_euros() {
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return false;
+            }
+
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return true;
+            }
+        };
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        CompteurTrajets compteurTrajets = mock(CompteurTrajets.class);
+        when(compteurTrajets.trajetsInclus("usager11", LocalDate.of(2027, 9, 1))).thenReturn(0);
+
+        TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
+
+        // When
+        Montant prix = tarifPass.prix("usager11", TypeVehicule.VELO, 30);
+
+        // Then
+        assertEquals(Montant.euros(0.20), prix);
+        verify(compteurTrajets).enregistrerTrajetInclus("usager11", LocalDate.of(2027, 9, 1));
+    }
+
+    @Test
+    void un_1er_trajet_trottinette_non_abonne_et_avecPass_de_25_minutes_coute_1_euro_et_25_centimes() {
+        // Given
+        Abonnements abonnements = new Abonnements() {
+            @Override
+            public boolean estAbonne(String usager) {
+                return false;
+            }
+
+            @Override
+            public boolean aUnPassActif(String usager, LocalDate jour) {
+                return true;
+            }
+        };
+        Horloge horloge = () -> LocalDate.of(2027, 9, 1);
+
+        CompteurTrajets compteurTrajets = mock(CompteurTrajets.class);
+        when(compteurTrajets.trajetsInclus("usager12", LocalDate.of(2027, 9, 1))).thenReturn(0);
+
+        TarifPass tarifPass = new TarifPass(abonnements, compteurTrajets, horloge);
+
+        // When
+        Montant prix = tarifPass.prix("usager12", TypeVehicule.TROTTINETTE, 25);
+
+        // Then
+        assertEquals(Montant.euros(1.25), prix);
+        verify(compteurTrajets).enregistrerTrajetInclus("usager12", LocalDate.of(2027, 9, 1));
+    }
+
 }
