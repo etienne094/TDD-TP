@@ -9,11 +9,16 @@ public class TarifPass {
     private final Horloge horloge;
 
     private static final Montant DEVERROUILLAGE = Montant.euros(1.00);
+
     private static final Montant MINUTE_VELO = Montant.euros(0.20);
     private static final Montant MINUTE_TROTTINETTE = Montant.euros(0.25);
+
     private static final Montant PLAFOND = Montant.euros(15.00);
     private static final int MINUTES_INCLUSES_PASS = 20;
     private static final int MAX_TRAJETS_INCLUS_PAR_JOUR = 2;
+
+    private static final int REMISE_ABONNE_POURCENT = 20;
+
 
     public TarifPass(Abonnements abonnements, CompteurTrajets compteur, Horloge horloge) {
         this.abonnements = abonnements;
@@ -22,37 +27,32 @@ public class TarifPass {
     }
 
     public Montant prix(String usager, TypeVehicule type, int minutes) {
-
         if (minutes < 0) {
             throw new IllegalArgumentException("durée négative");
         }
 
         LocalDate jour = horloge.aujourdhui();
 
-        // Bloc pass
-        if (abonnements.aUnPassActif(usager, jour) && compteur.trajetsInclus(usager, jour) < MAX_TRAJETS_INCLUS_PAR_JOUR){
+        Montant deverrouillage = DEVERROUILLAGE;
+        int minutesFacturees = minutes;
 
+        if (estUnTrajetInclus(usager, jour)) {
             compteur.enregistrerTrajetInclus(usager, jour);
-            Montant prixPass = Montant.ZERO;
-            if (minutes > MINUTES_INCLUSES_PASS) {
-                prixPass = tarifMinute(type).fois(minutes - MINUTES_INCLUSES_PASS);
-            }
-            prixPass = prixPass.plafonneA(PLAFOND);
-
-            // Bloc abonné
-            if (abonnements.estAbonne(usager)) {
-                prixPass = prixPass.moinsPourcent(20);
-            }
-            return prixPass;
+            deverrouillage = Montant.ZERO;
+            minutesFacturees = Math.max(0, minutes - MINUTES_INCLUSES_PASS);
         }
 
-        Montant prix = DEVERROUILLAGE.plus(tarifMinute(type).fois(minutes)).plafonneA(PLAFOND);
+        Montant prix = deverrouillage.plus(tarifMinute(type).fois(minutesFacturees)).plafonneA(PLAFOND);
 
         if (abonnements.estAbonne(usager)) {
-            prix = prix.moinsPourcent(20);
+            prix = prix.moinsPourcent(REMISE_ABONNE_POURCENT);
         }
-
         return prix;
+    }
+
+    private boolean estUnTrajetInclus(String usager, LocalDate jour) {
+        return abonnements.aUnPassActif(usager, jour)
+                && compteur.trajetsInclus(usager, jour) < MAX_TRAJETS_INCLUS_PAR_JOUR;
     }
 
     private Montant tarifMinute(TypeVehicule type) {
