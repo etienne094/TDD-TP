@@ -37,6 +37,7 @@ public class TarifPass {
             if (minutes > MINUTES_INCLUSES_PASS) {
                 prixPass = tarifMinute(type).fois(minutes - MINUTES_INCLUSES_PASS);
             }
+            prixPass = prixPass.plafonneA(PLAFOND);
 
             // Bloc abonné
             if (abonnements.estAbonne(usager)) {
