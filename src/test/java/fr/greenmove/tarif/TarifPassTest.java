@@ -51,6 +51,7 @@ public class TarifPassTest {
 
         // Then
         assertEquals(Montant.euros(3.40), prix);
+        verifyNoInteractions(compteur);
     }
 
     @Test
@@ -99,6 +100,7 @@ public class TarifPassTest {
 
         // Then
         assertEquals(Montant.euros(15), prix);
+        verifyNoInteractions(compteur);
     }
 
     // ---------- Erreur ----------
@@ -113,6 +115,7 @@ public class TarifPassTest {
                 () -> tarifPass.prix("usager6", TypeVehicule.VELO, -1));
 
         assertEquals("durée négative", erreur.getMessage());
+        verifyNoInteractions(compteur);
     }
 
     // ---------- Abonné GreenMove ----------
@@ -127,6 +130,7 @@ public class TarifPassTest {
 
         // Then
         assertEquals(Montant.euros(2.72), prix);
+        verifyNoInteractions(compteur);
     }
 
     @Test
@@ -155,6 +159,20 @@ public class TarifPassTest {
         // Then
         assertEquals(Montant.euros(0), prix);
         verify(compteur).enregistrerTrajetInclus("usager9", JOUR);
+    }
+
+    @Test
+    void un_1er_trajet_velo_non_abonne_et_avecPass_de_20_minutes_coute_0_euro() {
+        // Given
+        when(compteur.trajetsInclus("usager16", JOUR)).thenReturn(0);
+        TarifPass tarifPass = tarifPour(abonnements(false, true));
+
+        // When
+        Montant prix = tarifPass.prix("usager16", TypeVehicule.VELO, 20);
+
+        // Then
+        assertEquals(Montant.euros(0), prix);
+        verify(compteur).enregistrerTrajetInclus("usager16", JOUR);
     }
 
     @Test
@@ -245,4 +263,6 @@ public class TarifPassTest {
         assertEquals(Montant.euros(15), prix);
         verify(compteur).enregistrerTrajetInclus("usager15", JOUR);
     }
+
+
 }
